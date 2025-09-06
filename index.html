@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Website</title>
+</head>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Website Design Menu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF8;
+            color: #4A4A4A;
+        }
+        .menu-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        }
+        .menu-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .menu-card.selected {
+            border-color: #C084FC;
+            background-color: #F5F3FF;
+        }
+        .sticky-aside {
+            position: sticky;
+            top: 2rem;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px;
+            }
+        }
+        .alert {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-purple-600 mb-2">🍽️ Interactive Design Menu</h1>
+            <p class="text-lg text-gray-600">Build your custom website quote. Click on any service to add it to your total.</p>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+
+            <div id="menu-container" class="lg:col-span-2 space-y-10">
+            </div>
+
+            <aside class="lg:col-span-1">
+                <div id="quote-summary" class="sticky-aside bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                    <h2 class="text-2xl font-bold mb-4 border-b pb-2">Your Quote</h2>
+                    <div id="quote-items" class="mb-4 space-y-2">
+                        <p class="text-gray-500">Your selected services will appear here.</p>
+                    </div>
+                    <div class="border-t-2 border-dashed pt-4">
+                        <div class="flex justify-between items-center text-xl font-bold text-purple-700">
+                            <span>Total:</span>
+                            <span id="quote-total">$0</span>
+                        </div>
+                    </div>
+                    <button id="clear-quote" class="w-full mt-6 bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">Clear All</button>
+                    <button id="purchase-btn" class="w-full mt-2 bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors">Purchase Now</button>
+                    <div id="purchase-message" class="text-center text-sm font-medium mt-3"></div>
+                </div>
+            </aside>
+        </main>
+        
+        <section id="analysis-section" class="mt-20 text-center hidden">
+             <h2 class="text-3xl font-bold text-gray-800 mb-4">Project Cost Breakdown</h2>
+             <p class="text-md text-gray-600 max-w-2xl mx-auto mb-8">This chart shows how your total cost is distributed across the different service categories, helping you visualize your investment.</p>
+             <div class="chart-container">
+                <canvas id="cost-breakdown-chart"></canvas>
+             </div>
+        </section>
+
+        <footer class="text-center mt-20 border-t pt-8">
+            <h3 class="text-2xl font-bold text-gray-800">Ready to Start?</h3>
+            <p class="text-gray-600 mt-2 mb-4">💡 Not sure what to pick? I'll help you choose the right menu items for your business.</p>
+            <div class="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-6 text-lg">
+                <span class="font-semibold">📞 (346) 222-0981</span>
+                <span class="font-semibold">✉️ chef.menu@icloud.com</span>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- Purchase Modal -->
+    <div id="purchase-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl p-8 max-w-md w-full">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Complete Your Order</h3>
+                <form id="purchase-form">
+                    <div class="space-y-4">
+                        <div>
+                            <label for="customer_name" class="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                            <input type="text" id="customer_name" name="customer_name" required 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <div>
+                            <label for="customer_email" class="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
+                            <input type="email" id="customer_email" name="customer_email" required 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <div>
+                            <label for="customer_phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                            <input type="tel" id="customer_phone" name="customer_phone" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                    </div>
+                    <div class="flex space-x-3 mt-8">
+                        <button type="button" id="cancel-purchase" 
+                                class="flex-1 bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="flex-1 bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors">
+                            Submit Quote
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Features Modal -->
+    <div id="custom-features-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl p-8 max-w-lg w-full">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Custom Features Request</h3>
+                <p class="text-gray-600 mb-4">Please describe the custom features or unique requests you need for your website:</p>
+                <textarea 
+                    id="custom-features-text" 
+                    rows="5" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-vertical"
+                    placeholder="Example: I need a booking system for yoga classes with payment integration and email notifications..."
+                ></textarea>
+                <div class="flex space-x-3 mt-6">
+                    <button type="button" id="cancel-custom-features" 
+                            class="flex-1 bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="button" id="confirm-custom-features"
+                            class="flex-1 bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors">
+                        Add to Quote
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const menuData = [
+            {
+                category: "🥗 Starters – Basic Websites",
+                subtitle: "Simple setups to get you online fast.",
+                items: [
+                    { id: 1, name: "1-Page Website", desc: "(Home, About, Contact)", price: 450 },
+                    { id: 2, name: "3-Page Website", desc: "(Home, Services, Contact)", price: 750 },
+                    { id: 3, name: "5-Page Website", desc: "(Home, Services, Gallery/FAQ, Contact)", price: 1050 },
+                    { id: 4, name: "Landing Page for Ads", desc: "(focused single page)", price: 500 },
+                    { id: 5, name: "Business Starter Combo", desc: "(3-Page + Contact Form + Google Maps)", price: 950 }
+                ]
+            },
+            {
+                category: "🍝 Main Course – Functionality Upgrades",
+                subtitle: "Add power & features to your website.",
+                items: [
+                    { id: 6, name: "Online Booking System", price: 300 },
+                    { id: 7, name: "Contact Form with Email Alerts", price: 150 },
+                    { id: 8, name: "Blog / News Page", price: 200 },
+                    { id: 9, name: "E-Commerce Store", desc: "(10 products)", price: 600 },
+                    { id: 10, name: "Online Payment Integration", desc: "(Stripe/PayPal)", price: 250 },
+                    { id: 11, name: "Customer Login / Member Area", price: 400 }
+                ]
+            },
+            {
+                category: "🍟 Sides – Extras to Add Flavor",
+                subtitle: "Small details that make a big impact.",
+                items: [
+                    { id: 12, name: "Google Maps Integration", price: 100 },
+                    { id: 13, name: "Photo Gallery / Portfolio", price: 150 },
+                    { id: 14, name: "Customer Testimonials Section", price: 100 },
+                    { id: 15, name: "Social Media Links", price: 75 },
+                    { id: 16, name: "FAQ Section", price: 125 },
+                    { id: 17, name: "Custom Forms", desc: "(Quotes / Intake)", price: 175 }
+                ]
+            },
+            {
+                category: "🍰 Dessert – Premium Add-Ons",
+                subtitle: "Boost your brand & visibility.",
+                items: [
+                    { id: 18, name: "Logo Design", price: 250 },
+                    { id: 19, name: "SEO Optimization Package", price: 400 },
+                    { id: 20, name: "Google Ads Setup", price: 350 },
+                    { id: 21, name: "Monthly Updates & Maintenance", price: 150, isMonthly: true },
+                    { id: 22, name: "Analytics Dashboard", desc: "(Track Visitors)", price: 200 },
+                    { id: 23, name: "Content Writing", desc: "(500 words)", price: 150 }
+                ]
+            },
+            {
+                category: "👨‍🍳 Chef's Special – Custom Orders",
+                subtitle: "Something unique? Let's build it.",
+                items: [
+                    { id: 24, name: "Custom Features / Unique Requests", desc: "Starting at", price: 250 }
+                ]
+            }
+        ];
+
+        let selectedItems = new Map();
+        let costChart = null;
+
+        const menuContainer = document.getElementById('menu-container');
+        const quoteItemsContainer = document.getElementById('quote-items');
+        const quoteTotalEl = document.getElementById('quote-total');
+        const clearQuoteBtn = document.getElementById('clear-quote');
+        const analysisSection = document.getElementById('analysis-section');
+        const purchaseBtn = document.getElementById('purchase-btn');
+        const purchaseMsg = document.getElementById('purchase-message');
+        const purchaseModal = document.getElementById('purchase-modal');
+        const cancelPurchaseBtn = document.getElementById('cancel-purchase');
+        const customFeaturesModal = document.getElementById('custom-features-modal');
+
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMenu();
+            initializeEventListeners();
+        });
+
+        function renderMenu() {
+            menuContainer.innerHTML = '';
+            menuData.forEach((categoryData) => {
+                const section = document.createElement('section');
+                
+                const title = document.createElement('h2');
+                title.className = 'text-3xl font-bold text-gray-800 mb-2';
+                title.textContent = categoryData.category;
+                section.appendChild(title);
+
+                const subtitle = document.createElement('p');
+                subtitle.className = 'text-md text-gray-500 mb-6';
+                subtitle.textContent = categoryData.subtitle;
+                section.appendChild(subtitle);
+
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
+                
+                categoryData.items.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'menu-card bg-white p-4 rounded-xl border-2 border-gray-100 cursor-pointer';
+                    card.dataset.id = item.id;
+                    card.dataset.category = categoryData.category.split('–')[0].trim();
+                    card.dataset.name = item.name;
+                    card.dataset.price = item.price;
+                    card.dataset.desc = item.desc || '';
+                    card.dataset.monthly = item.isMonthly || false;
+
+                    const flex = document.createElement('div');
+                    flex.className = 'flex justify-between items-start';
+
+                    const textDiv = document.createElement('div');
+                    const name = document.createElement('h3');
+                    name.className = 'font-semibold text-gray-900';
+                    name.textContent = item.name;
+                    textDiv.appendChild(name);
+
+                    if (item.desc) {
+                        const desc = document.createElement('p');
+                        desc.className = 'text-sm text-gray-500';
+                        desc.textContent = item.desc;
+                        textDiv.appendChild(desc);
+                    }
+                    
+                    flex.appendChild(textDiv);
+
+                    const price = document.createElement('p');
+                    price.className = 'font-bold text-purple-600 text-lg whitespace-nowrap pl-4';
+                    price.textContent = `$${item.price}${item.isMonthly ? '/mo' : ''}`;
+                    flex.appendChild(price);
+                    
+                    card.appendChild(flex);
+                    
+                    // Add click event listener
+                    card.addEventListener('click', function() {
+                        const itemId = parseInt(this.dataset.id);
+                        const itemData = {
+                            id: itemId,
+                            name: this.dataset.name,
+                            price: parseFloat(this.dataset.price),
+                            desc: this.dataset.desc,
+                            category: this.dataset.category,
+                            isMonthly: this.dataset.monthly === 'true'
+                        };
+                        
+                        toggleMenuItem(itemData, this);
+                    });
+                    
+                    grid.appendChild(card);
+                });
+                
+                section.appendChild(grid);
+                menuContainer.appendChild(section);
+            });
+        }
+
+        function initializeEventListeners() {
+            clearQuoteBtn.addEventListener('click', clearQuote);
+            purchaseBtn.addEventListener('click', showPurchaseModal);
+            cancelPurchaseBtn.addEventListener('click', hidePurchaseModal);
+            
+            // Close purchase modal when clicking outside
+            purchaseModal.addEventListener('click', function(e) {
+                if (e.target === purchaseModal) {
+                    hidePurchaseModal();
+                }
+            });
+            
+            // Close custom features modal when clicking outside
+            customFeaturesModal.addEventListener('click', function(e) {
+                if (e.target === customFeaturesModal) {
+                    hideCustomFeaturesModal();
+                }
+            });
+
+            // Handle purchase form submission
+            document.getElementById('purchase-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = document.getElementById('customer_name').value.trim();
+                const email = document.getElementById('customer_email').value.trim();
+                
+                if (!name || !email) {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+                
+                // Show success message
+                hidePurchaseModal();
+                purchaseMsg.textContent = 'Your quote has been submitted successfully! We will contact you soon.';
+                purchaseMsg.className = 'text-center text-sm font-medium mt-3 text-green-600';
+                
+                setTimeout(() => {
+                    purchaseMsg.textContent = '';
+                    purchaseMsg.className = 'text-center text-sm font-medium mt-3';
+                }, 5000);
+            });
+        }
+
+        function toggleMenuItem(item, cardElement) {
+            // Special handling for custom features item (id 24)
+            if (item.id === 24) {
+                if (selectedItems.has(item.id)) {
+                    selectedItems.delete(item.id);
+                    cardElement.classList.remove('selected');
+                    updateQuote();
+                } else {
+                    showCustomFeaturesModal(item, cardElement);
+                }
+                return;
+            }
+            
+            if (selectedItems.has(item.id)) {
+                selectedItems.delete(item.id);
+                cardElement.classList.remove('selected');
+            } else {
+                selectedItems.set(item.id, item);
+                cardElement.classList.add('selected');
+            }
+            updateQuote();
+        }
+
+        function updateQuote() {
+            quoteItemsContainer.innerHTML = '';
+            let total = 0;
+            let monthlyTotal = 0;
+
+            if (selectedItems.size === 0) {
+                quoteItemsContainer.innerHTML = '<p class="text-gray-500">Your selected services will appear here.</p>';
+                analysisSection.classList.add('hidden');
+            } else {
+                analysisSection.classList.remove('hidden');
+                selectedItems.forEach(item => {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'flex justify-between items-center text-sm';
+                    
+                    let itemDisplay = item.name;
+                    if (item.customFeatures) {
+                        itemDisplay += `: ${item.customFeatures}`;
+                    }
+                    
+                    itemEl.innerHTML = `
+                        <span class="pr-2">${itemDisplay}</span>
+                        <span class="font-semibold">$${item.price}${item.isMonthly ? '/mo' : ''}</span>
+                    `;
+                    quoteItemsContainer.appendChild(itemEl);
+                    
+                    if (item.isMonthly) {
+                        monthlyTotal += item.price;
+                    } else {
+                        total += item.price;
+                    }
+                });
+                
+                if (monthlyTotal > 0) {
+                    const monthlyEl = document.createElement('div');
+                    monthlyEl.className = 'flex justify-between items-center text-sm pt-2 border-t mt-2';
+                    monthlyEl.innerHTML = `
+                        <span class="pr-2 font-medium">Monthly Services:</span>
+                        <span class="font-semibold text-purple-600">$${monthlyTotal}/mo</span>
+                    `;
+                    quoteItemsContainer.appendChild(monthlyEl);
+                }
+                
+                updateCostChart();
+            }
+
+            quoteTotalEl.textContent = `$${total}`;
+            
+            // Update purchase button state
+            if (selectedItems.size > 0) {
+                purchaseBtn.disabled = false;
+                purchaseBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                purchaseBtn.disabled = true;
+                purchaseBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function updateCostChart() {
+            const categoryTotals = {};
+            selectedItems.forEach(item => {
+                if (!item.isMonthly) {
+                    const category = item.category;
+                    categoryTotals[category] = (categoryTotals[category] || 0) + item.price;
+                }
+            });
+
+            const labels = Object.keys(categoryTotals);
+            const data = Object.values(categoryTotals);
+            const colors = [
+                '#8B5CF6', '#A78BFA', '#C4B5FD', '#DDD6FE', '#EDE9FE',
+                '#F3F4F6', '#E5E7EB', '#D1D5DB'
+            ];
+
+            const ctx = document.getElementById('cost-breakdown-chart').getContext('2d');
+            
+            if (costChart) {
+                costChart.destroy();
+            }
+
+            if (labels.length > 0) {
+                costChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: colors.slice(0, labels.length),
+                            borderWidth: 0,
+                            hoverOffset: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    font: {
+                                        family: 'Inter',
+                                        size: 12
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const value = context.parsed;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return `${context.label}: $${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function clearQuote() {
+            selectedItems.clear();
+            document.querySelectorAll('.menu-card.selected').forEach(card => {
+                card.classList.remove('selected');
+            });
+            updateQuote();
+            purchaseMsg.textContent = '';
+        }
+
+        function showPurchaseModal() {
+            if (selectedItems.size === 0) {
+                alert('Please select at least one service before purchasing.');
+                return;
+            }
+            
+            purchaseModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hidePurchaseModal() {
+            purchaseModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            // Clear form
+            document.getElementById('purchase-form').reset();
+        }
+
+        function showCustomFeaturesModal(item, cardElement) {
+            const textarea = document.getElementById('custom-features-text');
+            const confirmBtn = document.getElementById('confirm-custom-features');
+            const cancelCustomBtn = document.getElementById('cancel-custom-features');
+            
+            // Clear previous text
+            textarea.value = '';
+            
+            // Show modal
+            customFeaturesModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            textarea.focus();
+            
+            // Remove any existing event listeners
+            const newConfirmBtn = confirmBtn.cloneNode(true);
+            const newCancelBtn = cancelCustomBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+            cancelCustomBtn.parentNode.replaceChild(newCancelBtn, cancelCustomBtn);
+            
+            // Handle confirm
+            newConfirmBtn.addEventListener('click', () => {
+                const customText = textarea.value.trim();
+                if (customText) {
+                    // Add custom text to the item
+                    const customItem = { ...item, customFeatures: customText };
+                    selectedItems.set(item.id, customItem);
+                    cardElement.classList.add('selected');
+                    updateQuote();
+                    hideCustomFeaturesModal();
+                } else {
+                    alert('Please describe what custom features you need.');
+                }
+            });
+            
+            // Handle cancel
+            newCancelBtn.addEventListener('click', () => {
+                hideCustomFeaturesModal();
+            });
+        }
+
+        function hideCustomFeaturesModal() {
+            customFeaturesModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    </script>
+</body>
+</html>
